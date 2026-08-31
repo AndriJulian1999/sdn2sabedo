@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDN 2 Sabedo - Portal Pendidikan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+        .view-section {
+            display: none;
+            min-height: 100vh;
+        }
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- ================= 1. HALAMAN UTAMA / LANDING PAGE ================= -->
+    <section id="view-landing" class="view-section active justify-between p-6 md:p-12 text-center bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 text-white">
+        <div class="max-w-4xl mx-auto my-auto py-12">
+            <span class="bg-blue-500/20 text-blue-300 text-xs md:text-sm font-semibold px-4 py-1.5 rounded-full border border-blue-400/30 uppercase tracking-widest">Portal Akademik Resmi</span>
+            <h1 class="text-4xl md:text-6xl font-extrabold mt-6 tracking-tight">SDN 2 SABEDO</h1>
+            <p class="text-lg md:text-xl font-medium text-blue-200 mt-3">Selamat datang, <span class="text-white font-semibold">Andri Julian Perdana, S.Pd., Gr.</span></p>
+            <div class="mt-4 inline-block bg-white/10 backdrop-blur-md px-6 py-2 rounded-xl border border-white/10">
+                <p class="italic text-amber-300 font-medium text-sm md:text-base">"Berikan warna pada masa depan"</p>
+            </div>
+            
+            <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="switchView('view-login-guru')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5">
+                    Login sebagai Guru
+                </button>
+                <button onclick="switchView('view-login-siswa')" class="bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold py-3.5 px-8 rounded-xl backdrop-blur-md transition-all duration-200 transform hover:-translate-y-0.5">
+                    Login sebagai Siswa
+                </button>
+            </div>
+        </div>
+        <div class="text-xs text-slate-400">© 2026 SDN 2 Sabedo • All Rights Reserved</div>
+    </section>
+
+    <!-- ================= 2. HALAMAN LOGIN GURU ================= -->
+    <section id="view-login-guru" class="view-section items-center justify-center p-6 bg-slate-900 text-white">
+        <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 w-full max-w-md">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold">Login Guru</h2>
+                <p class="text-slate-400 text-sm mt-1">Masukkan kredensial akun pengajar Anda</p>
+            </div>
+            <div id="alert-guru" class="hidden mb-4 p-3 rounded-xl text-sm font-medium text-center"></div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Username</label>
+                    <input type="text" id="username-guru" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" placeholder="Masukkan username">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Password</label>
+                    <input type="password" id="password-guru" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" placeholder="Masukkan password">
+                </div>
+                <button onclick="handleLoginGuru()" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-3 rounded-xl shadow-lg transition duration-200 mt-2">Masuk Ruang Kelas</button>
+            </div>
+            <button onclick="switchView('view-landing')" class="w-full mt-4 text-sm text-slate-400 hover:text-white transition">Kembali ke Beranda</button>
+        </div>
+    </section>
+
+    <!-- ================= 3. HALAMAN LOGIN SISWA (Tanpa Keterangan Password) ================= -->
+    <section id="view-login-siswa" class="view-section items-center justify-center p-6 bg-slate-900 text-white">
+        <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 w-full max-w-md">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold">Login Peserta Didik</h2>
+                <p class="text-slate-400 text-sm mt-1">Masukkan akun siswa yang telah dibagikan</p>
+            </div>
+            <div id="alert-siswa" class="hidden mb-4 p-3 rounded-xl text-sm font-medium text-center"></div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Username Siswa</label>
+                    <input type="text" id="username-siswa" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500" placeholder="Masukkan username siswa">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Password</label>
+                    <input type="password" id="password-siswa" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500" placeholder="Masukkan password rahasia">
+                </div>
+                <button onclick="handleLoginSiswa()" class="w-full bg-emerald-600 hover:bg-emerald-500 font-bold py-3 rounded-xl shadow-lg transition duration-200 mt-2">Masuk ke Portal Siswa</button>
+            </div>
+            <button onclick="switchView('view-landing')" class="w-full mt-4 text-sm text-slate-400 hover:text-white transition">Kembali ke Beranda</button>
+        </div>
+    </section>
+
+    <!-- ================= 4. RUANG KELAS UTAMA GURU ================= -->
+    <section id="view-ruang-kelas" class="view-section p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 pb-6 mb-8 gap-4">
+            <div>
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Dashboard Guru</span>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">Ruang Kelas Utama</h2>
+            </div>
+            <button onclick="switchView('view-landing')" class="bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold px-4 py-2 rounded-xl text-sm transition">Keluar Akun</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div onclick="switchView('view-presensi')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 hover:shadow-md cursor-pointer transition-all">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold mb-4">📅</div>
+                <h3 class="text-lg font-bold text-slate-900">Presensi Hari Ini</h3>
+                <p class="text-slate-500 text-sm mt-1">Catat kehadiran peserta didik secara real-time.</p>
+            </div>
+            <div onclick="switchView('view-rekap-presensi')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 hover:shadow-md cursor-pointer transition-all">
+                <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold mb-4">📊</div>
+                <h3 class="text-lg font-bold text-slate-900">Rekap Presensi</h3>
+                <p class="text-slate-500 text-sm mt-1">Lihat dan tinjau rekapitulasi kehadiran siswa.</p>
+            </div>
+            <div onclick="switchView('view-penilaian')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 hover:shadow-md cursor-pointer transition-all">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold mb-4">📝</div>
+                <h3 class="text-lg font-bold text-slate-900">Penilaian</h3>
+                <p class="text-slate-500 text-sm mt-1">Input nilai pengetahuan & keterampilan berbasis SOLO.</p>
+            </div>
+            <div onclick="switchView('view-rekap-nilai')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 hover:shadow-md cursor-pointer transition-all">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold mb-4">📈</div>
+                <h3 class="text-lg font-bold text-slate-900">Rekap Penilaian</h3>
+                <p class="text-slate-500 text-sm mt-1">Perhitungan akhir nilai (70% Pengetahuan + 30% Keterampilan).</p>
+            </div>
+            <div onclick="switchView('view-analisis')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 hover:shadow-md cursor-pointer transition-all">
+                <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl font-bold mb-4">🔍</div>
+                <h3 class="text-lg font-bold text-slate-900">Analisis Nilai Peserta Didik</h3>
+                <p class="text-slate-500 text-sm mt-1">Analisis rata-rata perolehan nilai siswa tiap mapel.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 5. HALAMAN PRESENSI HARI INI ================= -->
+    <section id="view-presensi" class="view-section p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Presensi Peserta Didik</h2>
+                <p id="live-datetime" class="text-sm text-slate-500 mt-0.5">Memuat waktu real-time...</p>
+            </div>
+            <button onclick="switchView('view-ruang-kelas')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition">← Kembali</button>
+        </div>
+
+        <div class="flex gap-3 mb-4">
+            <button onclick="setAllPresensi('Hadir')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase transition">Hadir Semua</button>
+            <button onclick="setAllPresensi('Libur')" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase transition">Libur</button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
+                        <th class="p-4">No</th>
+                        <th class="p-4">Nama Peserta Didik</th>
+                        <th class="p-4 text-center">Status Kehadiran</th>
+                    </tr>
+                </thead>
+                <tbody id="tabel-presensi-body" class="divide-y divide-slate-100 text-sm">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-end">
+            <button onclick="simpanPresensi()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-xl shadow-md transition">Simpan Presensi</button>
+        </div>
+    </section>
+
+    <!-- ================= 6. HALAMAN REKAP PRESENSI ================= -->
+    <section id="view-rekap-presensi" class="view-section p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Rekap Presensi Peserta Didik</h2>
+                <p class="text-sm text-slate-500">Arsip presensi harian dan rekap tanggal lampau</p>
+            </div>
+            <button onclick="switchView('view-ruang-kelas')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition">← Kembali</button>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-wrap items-center gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">Pilih Tanggal Rekap</label>
+                <input type="date" id="input-rekap-tanggal" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="self-end">
+                <button onclick="bukaRekapLampau()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition shadow-sm">Rekap Sekarang</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
+                        <th class="p-4">No</th>
+                        <th class="p-4">Nama Peserta Didik</th>
+                        <th class="p-4 text-center">Status Kehadiran Tercatat</th>
+                    </tr>
+                </thead>
+                <tbody id="tabel-rekap-presensi-body" class="divide-y divide-slate-100 text-sm">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ================= 6.1 HALAMAN FORM REKAP LAMPAU ================= -->
+    <section id="view-form-rekap-lampau" class="view-section p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-6">
+            <div>
+                <span id="label-tanggal-rekap" class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Tanggal</span>
+                <h2 class="text-xl font-bold text-slate-900">Form Rekap Ulang Masa Lampau</h2>
+            </div>
+            <button onclick="switchView('view-rekap-presensi')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition">← Kembali</button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
+                        <th class="p-4">No</th>
+                        <th class="p-4">Nama Peserta Didik</th>
+                        <th class="p-4 text-center">Pilih Status Presensi Tanggal Terpilih</th>
+                    </tr>
+                </thead>
+                <tbody id="tabel-form-rekap-lampau-body" class="divide-y divide-slate-100 text-sm">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-end">
+            <button onclick="simpanRekapLampau()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 py-3 rounded-xl shadow-md transition">Simpan Rekap Lampau</button>
+        </div>
+    </section>
+
+    <!-- ================= 7. HALAMAN PENILAIAN ================= -->
+    <section id="view-penilaian" class="view-section p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Modul Penilaian Peserta Didik</h2>
+                <p class="text-sm text-slate-500">Pilih mata pelajaran untuk mulai menilai</p>
+            </div>
+            <button onclick="switchView('view-ruang-kelas')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition">← Kembali</button>
+        </div>
+
+        <div id="pilihan-mapel-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Mapel Options -->
+        </div>
+    </section>
+
+    <!-- ================= 7.1 HALAMAN SETUP & INPUT PENILAIAN SISWA ================= -->
+    <section id="view-form-penilaian" class="view-section p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-6">
+            <div>
+                <span id="label-mapel-aktif" class="text-xs font-bold text-blue-600 uppercase tracking-wider">Mata Pelajaran</span>
+                <h2 class="text-xl font-bold text-slate-900">Lembar Penilaian Tugas Siswa</h2>
+            </div>
+            <button onclick="switchView('view-penilaian')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition">← Kembali</button>
+        </div>
+
+        <!-- Setup Parameters -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Taksonomi SOLO (Pengetahuan)</label>
+                <select id="solo-pengetahuan" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm">
+                    <option>Unistruktural</option><option>Multistruktural</option><option>Relasional</option><option>Abstrak Diperluas</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Taksonomi SOLO (Keterampilan)</label>
+                <select id="solo-keterampilan" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm">
+                    <option>Unistruktural</option><option>Multistruktural</option><option>Relasional</option><option>Abstrak Diperluas</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Jumlah Butir Soal</label>
+                <input type="number" id="jumlah-soal" value="5" min="1" max="20" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2 text-sm">
+            </div>
+            <div class="md:col-span-3">
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Tujuan Pembelajaran</label>
+                <input type="text" id="tujuan-pembelajaran" placeholder="Tuliskan tujuan pembelajaran..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm">
+            </div>
+        </div>
+
+        <!-- Tabel Siswa Penilaian Interaktif -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
+                        <th class="p-4">No</th>
+                        <th class="p-4">Nama Peserta Didik</th>
+                        <th class="p-4 text-center">Pengetahuan (Klik: Hijau=1, Merah=0)</th>
+                        <th class="p-4 text-center">Keterampilan (Klik: 1=Hijau/3, 2=Kuning/2, 3=Merah/1)</th>
+                        <th class="p-4 text-center">Nilai Akhir (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="tabel-penilaian-body" class="divide-y divide-slate-100 text-sm">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-end gap-3">
+            <button onclick="simpanNilaiMapel()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-xl shadow-md transition">Simpan Nilai</button>
+        </div>
+    </section>
+
+    <!-- ================= 8. HALAMAN REKAP NILAI ================= -->
+    <section id="view-rekap-nilai" class="view-section p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Rekapitulasi Nilai Peserta Didik</h2>
+                <p class="text-sm text-slate-500">Formula: 70% Pengetahuan + 30% Keterampilan</p>
+            </div>
+            <button onclick="switchView('view-ruang-kelas')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition">← Kembali</button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
+                            <th class="p-4">No</th>
+                            <th class="p-4">Nama Peserta Didik</th>
+                            <th class="p-4 text-center">Pancasila</th>
+                            <th class="p-4 text-center">Matematika</th>
+                            <th class="p-4 text-center">IPAS</th>
+                            <th class="p-4 text-center">B. Indonesia</th>
+                            <th class="p-4 text-center">Seni Rupa</th>
+                            <th class="p-4 text-center">Mulok</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-rekap-nilai-body" class="divide-y divide-slate-100 text-sm">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 9. HALAMAN ANALISIS NILAI ================= -->
+    <section id="view-analisis" class="view-section p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Analisis Nilai Peserta Didik</h2>
+                <p class="text-sm text-slate-500">Rata-rata akumulatif nilai setiap mata pelajaran</p>
+            </div>
+            <button onclick="switchView('view-ruang-kelas')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition">← Kembali</button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
+                            <th class="p-4">No</th>
+                            <th class="p-4">Nama Peserta Didik</th>
+                            <th class="p-4 text-center">Pancasila</th>
+                            <th class="p-4 text-center">Matematika</th>
+                            <th class="p-4 text-center">IPAS</th>
+                            <th class="p-4 text-center">B. Indonesia</th>
+                            <th class="p-4 text-center">Seni Rupa</th>
+                            <th class="p-4 text-center">Mulok</th>
+                            <th class="p-4 text-center font-bold text-blue-600">Rata-rata Rapor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-analisis-body" class="divide-y divide-slate-100 text-sm">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 10. DASHBOARD SISWA ================= -->
+    <section id="view-portal-siswa" class="view-section p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 pb-6 mb-6 gap-4">
+            <div>
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Portal Siswa</span>
+                <h2 id="nama-siswa-login" class="text-2xl font-extrabold text-slate-900">Nama Siswa</h2>
+            </div>
+            <button onclick="switchView('view-landing')" class="bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold px-4 py-2 rounded-xl text-sm transition">Keluar</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-6">
+                <h3 class="text-lg font-bold text-slate-900 mb-4">Nilai Mata Pelajaran</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
+                                <th class="p-3">Mata Pelajaran</th>
+                                <th class="p-3 text-center">Nilai Akhir</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-nilai-siswa-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- Dynamic -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">Peringkat Kelas</h3>
+                    <p class="text-xs text-slate-500 mb-6">Posisi ranking Anda berdasarkan rata-rata nilai kelas.</p>
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 text-center">
+                        <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Ranking Anda</span>
+                        <div id="badge-ranking" class="text-4xl font-extrabold text-emerald-700 mt-2"># -</div>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-400 text-center">
+                    SDN 2 Sabedo Academic System
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Script Aplikasi Logika & UI Interaktif -->
+    <script>
+        const daftarSiswa = [
+            "Abdan Al Ghifari", "Ahmad Dani", "Aisyah Ayudia Inara", "Akil Muzaki",
+            "Arsya Ilan Diandra", "Azka Maulana", "Delisa nurani", "M Padil Aryadi",
+            "Muhammad Al Zikri", "Ridho haswan", "Rijal Andi putra", "Rohim ismul Akbar",
+            "Suci Ramadhani", "Yeni Yuliana", "Dika"
+        ];
+
+        // Database Akun Siswa dengan Password Unik Kombinasi Huruf & Angka
+        const akunSiswaDB = [
+            {user: "abdan01", pass: "abd7x9", nama: "Abdan Al Ghifari"},
+            {user: "ahmad02", pass: "dan4k2", nama: "Ahmad Dani"},
+            {user: "aisyah03", pass: "ai3sz8", nama: "Aisyah Ayudia Inara"},
+            {user: "akil04", pass: "akl9p1", nama: "Akil Muzaki"},
+            {user: "arsya05", pass: "ars5q3", nama: "Arsya Ilan Diandra"},
+            {user: "azka06", pass: "azk8m4", nama: "Azka Maulana"},
+            {user: "delisa07", pass: "del2v6", nama: "Delisa nurani"},
+            {user: "padil08", pass: "pad6x1", nama: "M Padil Aryadi"},
+            {user: "zikri09", pass: "zik3y7", nama: "Muhammad Al Zikri"},
+            {user: "ridho10", pass: "rid5w2", nama: "Ridho haswan"},
+            {user: "rijal11", pass: "rij9n4", nama: "Rijal Andi putra"},
+            {user: "rohim12", pass: "roh1t8", nama: "Rohim ismul Akbar"},
+            {user: "suci13", pass: "suc4r5", nama: "Suci Ramadhani"},
+            {user: "yeni14", pass: "yen7y3", nama: "Yeni Yuliana"},
+            {user: "dika15", pass: "dik2d9", nama: "Dika"}
+        ];
+
+        const daftarMapel = ["Pendidikan Pancasila", "Matematika", "IPAS", "Bahasa Indonesia", "Seni Rupa", "Mulok"];
+
+        let presensiData = {}; 
+        let nilaiData = {}; 
+        let activeMapel = "";
+        let siswaLoggedIn = null;
+        let selectedLampauDate = "";
+        let tempLampauPresensi = [];
+
+        window.onload = function() {
+            initPresensiHariIni();
+            initMapelPenilaian();
+            initRekapNilai();
+            initAnalisis();
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('input-rekap-tanggal').value = todayStr;
+            updateJamRealTime();
+            setInterval(updateJamRealTime, 1000);
+        };
+
+        function updateJamRealTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const tanggalStr = now.toLocaleDateString('id-ID', options);
+            const jamStr = now.toLocaleTimeString('id-ID');
+            const el = document.getElementById('live-datetime');
+            if (el) el.innerText = `${tanggalStr} — Pukul ${jamStr} WITA`;
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function handleLoginGuru() {
+            const user = document.getElementById('username-guru').value.trim();
+            const pass = document.getElementById('password-guru').value.trim();
+            const alertBox = document.getElementById('alert-guru');
+
+            alertBox.classList.remove('hidden');
+            if (user === 'Andri' && pass === '12345') {
+                alertBox.className = "mb-4 p-3 rounded-xl text-sm font-medium text-center bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                alertBox.innerText = "Password Benar! Memuat ruang kelas...";
+                setTimeout(() => {
+                    alertBox.classList.add('hidden');
+                    document.getElementById('username-guru').value = '';
+                    document.getElementById('password-guru').value = '';
+                    switchView('view-ruang-kelas');
+                }, 800);
+            } else {
+                alertBox.className = "mb-4 p-3 rounded-xl text-sm font-medium text-center bg-rose-500/20 text-rose-300 border border-rose-500/30";
+                alertBox.innerText = "Password Salah! Akses ditolak.";
+            }
+        }
+
+        function handleLoginSiswa() {
+            const user = document.getElementById('username-siswa').value.trim();
+            const pass = document.getElementById('password-siswa').value.trim();
+            const alertBox = document.getElementById('alert-siswa');
+
+            const found = akunSiswaDB.find(s => s.user === user && s.pass === pass);
+            alertBox.classList.remove('hidden');
+
+            if (found) {
+                alertBox.className = "mb-4 p-3 rounded-xl text-sm font-medium text-center bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                alertBox.innerText = "Login Berhasil!";
+                siswaLoggedIn = found.nama;
+                setTimeout(() => {
+                    alertBox.classList.add('hidden');
+                    document.getElementById('username-siswa').value = '';
+                    document.getElementById('password-siswa').value = '';
+                    loadPortalSiswa(found.nama);
+                    switchView('view-portal-siswa');
+                }, 600);
+            } else {
+                alertBox.className = "mb-4 p-3 rounded-xl text-sm font-medium text-center bg-rose-500/20 text-rose-300 border border-rose-500/30";
+                alertBox.innerText = "Username atau Password Siswa Salah!";
+            }
+        }
+
+        function getTodayKey() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function initPresensiHariIni() {
+            const today = getTodayKey();
+            if (!presensiData[today]) {
+                presensiData[today] = new Array(daftarSiswa.length).fill('');
+            }
+            renderTabelPresensi(today);
+            renderTabelRekapPresensi(today);
+        }
+
+        function renderTabelPresensi(dateKey) {
+            const tbody = document.getElementById('tabel-presensi-body');
+            tbody.innerHTML = '';
+            const statuses = ["Hadir", "Izin", "Sakit", "Tanpa Keterangan", "Libur"];
+
+            daftarSiswa.forEach((nama, idx) => {
+                const currentStatus = presensiData[dateKey] ? presensiData[dateKey][idx] : '';
+                let tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                
+                let btnsHtml = statuses.map(st => {
+                    let active = currentStatus === st;
+                    let colorClass = active ? getActiveStatusColor(st) : "bg-slate-100 text-slate-600 hover:bg-slate-200";
+                    return `<button onclick="updatePresensiStatus('${dateKey}', ${idx}, '${st}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${colorClass}">${st} ${active ? '✓' : ''}</button>`;
+                }).join(' ');
+
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-slate-500">${idx + 1}</td>
+                    <td class="p-4 font-medium text-slate-900">${nama}</td>
+                    <td class="p-4 text-center flex justify-center gap-2 flex-wrap">${btnsHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getActiveStatusColor(st) {
+            switch(st) {
+                case 'Hadir': return 'bg-emerald-600 text-white shadow-sm';
+                case 'Izin': return 'bg-blue-600 text-white shadow-sm';
+                case 'Sakit': return 'bg-amber-600 text-white shadow-sm';
+                case 'Tanpa Keterangan': return 'bg-rose-600 text-white shadow-sm';
+                case 'Libur': return 'bg-slate-600 text-white shadow-sm';
+                default: return 'bg-slate-200 text-slate-800';
+            }
+        }
+
+        function updatePresensiStatus(dateKey, index, status) {
+            if (!presensiData[dateKey]) presensiData[dateKey] = new Array(daftarSiswa.length).fill('');
+            presensiData[dateKey][index] = status;
+            renderTabelPresensi(dateKey);
+        }
+
+        function setAllPresensi(status) {
+            const today = getTodayKey();
+            presensiData[today] = new Array(daftarSiswa.length).fill(status);
+            renderTabelPresensi(today);
+        }
+
+        function simpanPresensi() {
+            alert("Presensi hari ini berhasil disimpan ke rekap!");
+            renderTabelRekapPresensi(getTodayKey());
+        }
+
+        function bukaRekapLampau() {
+            selectedLampauDate = document.getElementById('input-rekap-tanggal').value;
+            if (!selectedLampauDate) {
+                alert("Silakan pilih tanggal terlebih dahulu.");
+                return;
+            }
+            document.getElementById('label-tanggal-rekap').innerText = `Rekap Tanggal: ${selectedLampauDate}`;
+            
+            // Inisialisasi data sementara untuk tanggal lampau jika belum ada
+            if (!presensiData[selectedLampauDate]) {
+                presensiData[selectedLampauDate] = new Array(daftarSiswa.length).fill('');
+            }
+            tempLampauPresensi = [...presensiData[selectedLampauDate]];
+            renderTabelFormRekapLampau();
+            switchView('view-form-rekap-lampau');
+        }
+
+        function renderTabelFormRekapLampau() {
+            const tbody = document.getElementById('tabel-form-rekap-lampau-body');
+            tbody.innerHTML = '';
+            const statuses = ["Hadir", "Izin", "Sakit", "Tanpa Keterangan", "Libur"];
+
+            daftarSiswa.forEach((nama, idx) => {
+                let currentStatus = tempLampauPresensi[idx] || '';
+                let tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                
+                let btnsHtml = statuses.map(st => {
+                    let active = currentStatus === st;
+                    let colorClass = active ? getActiveStatusColor(st) : "bg-slate-100 text-slate-600 hover:bg-slate-200";
+                    return `<button onclick="updateTempLampauStatus(${idx}, '${st}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${colorClass}">${st} ${active ? '✓' : ''}</button>`;
+                }).join(' ');
+
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-slate-500">${idx + 1}</td>
+                    <td class="p-4 font-medium text-slate-900">${nama}</td>
+                    <td class="p-4 text-center flex justify-center gap-2 flex-wrap">${btnsHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateTempLampauStatus(index, status) {
+            tempLampauPresensi[index] = status;
+            renderTabelFormRekapLampau();
+        }
+
+        function simpanRekapLampau() {
+            presensiData[selectedLampauDate] = [...tempLampauPresensi];
+            alert(`Rekap presensi untuk tanggal ${selectedLampauDate} berhasil disimpan!`);
+            renderTabelRekapPresensi(selectedLampauDate);
+            switchView('view-rekap-presensi');
+        }
+
+        function renderTabelRekapPresensi(dateKey) {
+            const tbody = document.getElementById('tabel-rekap-presensi-body');
+            tbody.innerHTML = '';
+            const dataHariIni = presensiData[dateKey] || new Array(daftarSiswa.length).fill('Belum Diabsen');
+
+            daftarSiswa.forEach((nama, idx) => {
+                let status = dataHariIni[idx] || 'Belum Diabsen';
+                let badgeColor = "bg-slate-100 text-slate-700";
+                if(status === 'Hadir') badgeColor = "bg-emerald-100 text-emerald-700";
+                else if(status === 'Sakit') badgeColor = "bg-amber-100 text-amber-700";
+                else if(status === 'Izin') badgeColor = "bg-blue-100 text-blue-700";
+                else if(status === 'Tanpa Keterangan') badgeColor = "bg-rose-100 text-rose-700";
+                else if(status === 'Libur') badgeColor = "bg-slate-200 text-slate-800";
+
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-slate-500">${idx + 1}</td>
+                    <td class="p-4 font-medium text-slate-900">${nama}</td>
+                    <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold ${badgeColor}">${status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function initMapelPenilaian() {
+            const container = document.getElementById('pilihan-mapel-container');
+            container.innerHTML = '';
+            daftarMapel.forEach(mapel => {
+                let card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 hover:shadow-md cursor-pointer transition-all";
+                card.onclick = () => bukaFormPenilaian(mapel);
+                card.innerHTML = `
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold mb-4">📖</div>
+                    <h3 class="text-lg font-bold text-slate-900">${mapel}</h3>
+                    <p class="text-slate-500 text-sm mt-1">Klik untuk mulai penilaian mata pelajaran ${mapel}.</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function bukaFormPenilaian(mapel) {
+            activeMapel = mapel;
+            document.getElementById('label-mapel-aktif').innerText = `Mata Pelajaran: ${mapel}`;
+            if (!nilaiData[mapel]) {
+                nilaiData[mapel] = daftarSiswa.map(() => ({ penState: 0, ketState: 0, final: 0 }));
+            }
+            renderTabelFormPenilaian();
+            switchView('view-form-penilaian');
+        }
+
+        function renderTabelFormPenilaian() {
+            const tbody = document.getElementById('tabel-penilaian-body');
+            tbody.innerHTML = '';
+            const maxSoal = parseInt(document.getElementById('jumlah-soal').value) || 5;
+
+            daftarSiswa.forEach((nama, idx) => {
+                let studentData = nilaiData[activeMapel][idx];
+                
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-slate-500">${idx + 1}</td>
+                    <td class="p-4 font-medium text-slate-900">${nama}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="klikPengetahuan(${idx}, ${maxSoal})" id="btn-pen-${idx}" class="px-4 py-2 rounded-xl text-xs font-bold transition ${getPenColor(studentData.penState)}">
+                            Pengetahuan: ${studentData.penState}/${maxSoal}
+                        </button>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="klikKeterampilan(${idx}, ${maxSoal})" id="btn-ket-${idx}" class="px-4 py-2 rounded-xl text-xs font-bold transition ${getKetColor(studentData.ketState)}">
+                            Keterampilan: ${studentData.ketState}/${maxSoal * 3}
+                        </button>
+                    </td>
+                    <td class="p-4 text-center font-extrabold text-blue-600" id="val-final-${idx}">
+                        ${studentData.final.toFixed(1)}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getPenColor(state) {
+            if (state > 0) return 'bg-emerald-600 text-white';
+            return 'bg-slate-200 text-slate-700 hover:bg-slate-300';
+        }
+
+        function getKetColor(state) {
+            if (state > 0) return 'bg-indigo-600 text-white';
+            return 'bg-slate-200 text-slate-700 hover:bg-slate-300';
+        }
+
+        function klikPengetahuan(idx, maxSoal) {
+            let current = nilaiData[activeMapel][idx].penState;
+            current = (current + 1) % (maxSoal + 1);
+            nilaiData[activeMapel][idx].penState = current;
+            hitungNilaiSiswa(idx, maxSoal);
+            renderTabelFormPenilaian();
+        }
+
+        function klikKeterampilan(idx, maxSoal) {
+            let current = nilaiData[activeMapel][idx].ketState;
+            let maxLimit = maxSoal * 3;
+            current = (current + 1 > maxLimit) ? 0 : current + 1;
+            nilaiData[activeMapel][idx].ketState = current;
+            hitungNilaiSiswa(idx, maxSoal);
+            renderTabelFormPenilaian();
+        }
+
+        function hitungNilaiSiswa(idx, maxSoal) {
+            let d = nilaiData[activeMapel][idx];
+            let nilaiPen = (d.penState / maxSoal) * 100;
+            let nilaiKet = (d.ketState / (maxSoal * 3)) * 100;
+            let final = (0.7 * nilaiPen) + (0.3 * nilaiKet);
+            d.final = isNaN(final) ? 0 : final;
+        }
+
+        function simpanNilaiMapel() {
+            alert(`Nilai mata pelajaran ${activeMapel} berhasil disimpan dan disinkronkan ke rekap nilai!`);
+            initRekapNilai();
+            initAnalisis();
+            switchView('view-penilaian');
+        }
+
+        function initRekapNilai() {
+            const tbody = document.getElementById('tabel-rekap-nilai-body');
+            tbody.innerHTML = '';
+            daftarSiswa.forEach((nama, idx) => {
+                let tr = document.createElement('tr');
+                let tds = `<td class="p-4 font-semibold text-slate-500">${idx + 1}</td><td class="p-4 font-medium text-slate-900">${nama}</td>`;
+                
+                daftarMapel.forEach(mapel => {
+                    let score = (nilaiData[mapel] && nilaiData[mapel][idx]) ? nilaiData[mapel][idx].final : 0;
+                    tds += `<td class="p-4 text-center font-bold text-slate-700">${score > 0 ? score.toFixed(1) : '-'}</td>`;
+                });
+                tr.innerHTML = tds;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function initAnalisis() {
+            const tbody = document.getElementById('tabel-analisis-body');
+            tbody.innerHTML = '';
+            daftarSiswa.forEach((nama, idx) => {
+                let tr = document.createElement('tr');
+                let tds = `<td class="p-4 font-semibold text-slate-500">${idx + 1}</td><td class="p-4 font-medium text-slate-900">${nama}</td>`;
+                
+                let totalScore = 0;
+                let countMapel = daftarMapel.length;
+
+                daftarMapel.forEach(mapel => {
+                    let score = (nilaiData[mapel] && nilaiData[mapel][idx]) ? nilaiData[mapel][idx].final : 0;
+                    totalScore += score;
+                    tds += `<td class="p-4 text-center text-slate-600">${score > 0 ? score.toFixed(1) : '-'}</td>`;
+                });
+
+                let rataRata = countMapel > 0 ? (totalScore / countMapel) : 0;
+                tds += `<td class="p-4 text-center font-extrabold text-blue-600">${rataRata > 0 ? rataRata.toFixed(1) : '-'}</td>`;
+                tr.innerHTML = tds;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function loadPortalSiswa(namaSiswa) {
+            document.getElementById('nama-siswa-login').innerText = `Selamat Datang, ${namaSiswa}`;
+            const siswaIdx = daftarSiswa.indexOf(namaSiswa);
+            const tbody = document.getElementById('tabel-nilai-siswa-body');
+            tbody.innerHTML = '';
+
+            let totalRata = 0;
+            daftarMapel.forEach(mapel => {
+                let score = (nilaiData[mapel] && nilaiData[mapel][siswaIdx]) ? nilaiData[mapel][siswaIdx].final : 0;
+                totalRata += score;
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-medium text-slate-800">${mapel}</td>
+                    <td class="p-3 text-center font-bold text-blue-600">${score > 0 ? score.toFixed(1) : 'Belum Ada Nilai'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            let semuaRataSiswa = daftarSiswa.map((_, sIdx) => {
+                let sum = 0;
+                daftarMapel.forEach(m => {
+                    sum += (nilaiData[m] && nilaiData[m][sIdx]) ? nilaiData[m][sIdx].final : 0;
+                });
+                return { idx: sIdx, avg: sum / daftarMapel.length };
+            });
+
+            semuaRataSiswa.sort((a, b) => b.avg - a.avg);
+            let rank = semuaRataSiswa.findIndex(s => s.idx === siswaIdx) + 1;
+            document.getElementById('badge-ranking').innerText = `# ${rank} dari ${daftarSiswa.length}`;
+        }
+    </script>
+</body>
+</html>
